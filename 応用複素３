@@ -1,0 +1,28 @@
+// poisson-kikuchi.edp
+// https://m-katsurada.sakura.ne.jp/program/fem/poisson-kikuchi.edp
+// 菊地文雄, 有限要素法概説, サイエンス社
+
+int Gamma1=1, Gamma2=2;
+border Gamma10(t=0,1) { x=0;   y=1-t; label=Gamma1; }
+border Gamma11(t=0,1) { x=t;   y=0;   label=Gamma1; }
+border Gamma20(t=0,1) { x=1;   y=t;   label=Gamma2; }
+border Gamma21(t=0,1) { x=1-t; y=1;   label=Gamma2; }
+int m=10;
+mesh Th = buildmesh(Gamma10(m)+Gamma11(m)+Gamma20(m)+Gamma21(m));
+plot(Th,wait=true,ps="Th.eps");
+savemesh(Th,"Th.msh");
+fespace Vh(Th,P1);
+Vh u,v;
+func f=1;
+func g1=0;
+func g2=0;
+solve Poisson(u,v)=
+  int2d(Th)(dx(u)*dx(v)+dy(u)*dy(v))
+ -int2d(Th)(f*v)
+ -int1d(Th,Gamma2)(g2*v)
+ +on(Gamma1,u=g1); // on(Gamma10,Gamma11,u=g1) とも書ける。
+plot(u,wait=1,ps="poisson-kikuchi.eps");
+
+//3次元鳥瞰図
+//real [int] levels =0.0:0.01:1.0;
+//plot(u,dim=3,viso=levels,fill=true,wait=true);
